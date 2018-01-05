@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function prepare() {
-  apt-get -y install qemu bridge-utils uml-utilities libc_i386 libexpat1-dev libncurses5-dev
+  apt-get -y install qemu bridge-utils uml-utilities libc6-i386 libexpat1-dev libncurses5-dev
 }
 
 
