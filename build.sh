@@ -1,12 +1,12 @@
 #!/bin/bash
 
 function prepare() {
-  apt-get -y install qemu bridge-utils uml-utilities libc6-i386 libexpat1-dev libncurses5-dev
+  apt-get -y install qemu bridge-utils uml-utilities libc6-i386 libexpat1-dev libncurses5-dev axel
 }
 
 
 function download_sylixos() {
-  if [ -e arm-none-eabi ]
+  if [ -e sylixos ]
   then
     echo sylixos exist
   else
@@ -39,7 +39,13 @@ function download_toolchain() {
   then 
     echo ${NAME}.tar.bz2 exist
   else 
-    wget https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q3-update/+download/${NAME}.tar.bz2
+    axel -n 8 https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q3-update/+download/${NAME}.tar.bz2
+  fi
+  
+  if [ ! -e ${NAME}.tar.bz2 ]
+  then 
+    echo download ${NAME}.tar.bz2 failed.
+    exit
   fi
 
   if [ -e arm-none-eabi ]
@@ -80,3 +86,4 @@ function build() {
 
 build
 
+echo "DOne"
