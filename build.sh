@@ -20,8 +20,6 @@ function download_sylixos() {
     cd sylixos-base
     git submodule init
     git submodule update
-    cp -fv patch/lwip_netif.c sylixos/sylixos-base/libsylixos/SylixOS/net/lwip/lwip_netif.c
-    cp -fv patch/gcc.mk sylixos/sylixos-base/libsylixos/SylixOS/mktemp/gcc.mk
   fi
   cd $PROJ_ROOT_DIR
 }
@@ -68,6 +66,8 @@ export PATH=$PATH:${PWD}/arm-none-eabi/bin
 export SYLIXOS_BASE_PATH=${PWD}/sylixos/sylixos-base
 
 function build_sylixos() {
+  cp -fv patch/lwip_netif.c sylixos/sylixos-base/libsylixos/SylixOS/net/lwip/lwip_netif.c
+  cp -fv patch/gcc.mk sylixos/sylixos-base/libsylixos/SylixOS/mktemp/gcc.mk
   cd sylixos/sylixos-base
   make
   cd -
@@ -93,8 +93,8 @@ function download_build_qemu_mini2440() {
   fi
 }
 
-function prepare_qemu() {
-  ./sylixos/qemu-mini2440/nandCreator.c -o nandcreate;./nandcreate
+function prepare_nand() {
+  gcc ./sylixos/qemu-mini2440/nandCreator.c -o nandcreate;./nandcreate
 
 }
 
@@ -104,8 +104,8 @@ function build() {
   download_toolchain
   build_sylixos
   download_build_qemu_mini2440
+  prepare_nand
 }
 
 build
-
 echo "Done"
