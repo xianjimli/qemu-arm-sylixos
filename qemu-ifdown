@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo sudo brctl delif br0 $1
+brctl delif br0 $1
+brctl addbr br0
+
+echo sudo tunctl -d $1
+tunctl -d $1
+
+echo brctl show
+brctl show
+

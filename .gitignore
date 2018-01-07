@@ -1,3 +1,7 @@
 gcc*
 arm-none-eabi
 sylixos
+nand.bin 
+nandcreate 
+qemu-system-arm
+qemu-mini2440

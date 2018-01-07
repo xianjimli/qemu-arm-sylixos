@@ -1,10 +1,10 @@
 #!/bin/bash
 
 function prepare() {
-  apt-get -y install qemu bridge-utils uml-utilities libc6-i386 libexpat1-dev libncurses5-dev axel
+  apt-get -y install bridge-utils uml-utilities libc6-i386 libexpat1-dev libncurses5-dev axel libglib2.0-dev libpixman-1-dev libfdt-dev libsdl-dev
 }
 
-
+PROJ_ROOT_DIR=$PWD
 function download_sylixos() {
   if [ -e sylixos ]
   then
@@ -20,7 +20,10 @@ function download_sylixos() {
     cd sylixos-base
     git submodule init
     git submodule update
+    cp -fv patch/lwip_netif.c sylixos/sylixos-base/libsylixos/SylixOS/net/lwip/lwip_netif.c
+    cp -fv patch/gcc.mk sylixos/sylixos-base/libsylixos/SylixOS/mktemp/gcc.mk
   fi
+  cd $PROJ_ROOT_DIR
 }
 
 function link_arm_sylixos_eabi() {
@@ -29,7 +32,7 @@ function link_arm_sylixos_eabi() {
   do
     ln -s $f ${f/none/sylixos}
   done
-  cd -
+  cd $PROJ_ROOT_DIR
 }
 
 function download_toolchain() {
@@ -58,6 +61,7 @@ function download_toolchain() {
 
     link_arm_sylixos_eabi
   fi
+  cd $PROJ_ROOT_DIR
 }
 
 export PATH=$PATH:${PWD}/arm-none-eabi/bin
@@ -69,12 +73,29 @@ function build_sylixos() {
   cd -
 
   cd sylixos/bspmini2440
-  make SYLIXOS_BASE_PATH=${SYLIXOS_BASE_PATH}
+  make SYLIXOS_BASE_PATH=${SYLIXOS_BASE_PATH} all
   cd -
 
   cd sylixos/examples
   make SYLIXOS_BASE_PATH=${SYLIXOS_BASE_PATH}
   cd -
+
+  cd $PROJ_ROOT_DIR
+}
+
+function download_build_qemu_mini2440() {
+  if [ ! -e qemu-mini2440 ]
+  then 
+    git clone https://github.com/ywandy/qemu-mini2440.git
+    cd qemu-mini2440 && ./configure --target-list=arm-softmmu && make -j4
+    cd $PROJ_ROOT_DIR
+    cp -fv ./qemu-mini2440/arm-softmmu/qemu-system-arm .
+  fi
+}
+
+function prepare_qemu() {
+  ./sylixos/qemu-mini2440/nandCreator.c -o nandcreate;./nandcreate
+
 }
 
 function build() {
@@ -82,8 +103,9 @@ function build() {
   download_sylixos
   download_toolchain
   build_sylixos
+  download_build_qemu_mini2440
 }
 
 build
 
-echo "DOne"
+echo "Done"
